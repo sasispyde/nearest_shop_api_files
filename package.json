@@ -1,0 +1,18 @@
+{
+  "name": "idea1",
+  "version": "1.0.0",
+  "description": "api files for nearby shop products",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "sasidharan",
+  "license": "ISC",
+  "dependencies": {
+    "b": "^2.0.1",
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "mongodb": "^3.5.4",
+    "validator": "^12.2.0"
+  }
+}
