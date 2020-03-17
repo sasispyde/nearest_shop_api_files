@@ -64,5 +64,25 @@ module.exports = {
 				else resolve(result);
 			})
 		})
+	},
+	chack_if_category_name_is_already_exits(category_name,id){
+		return new Promise(function(resolve,reject){
+			let query = {};
+			if(id !== ''){
+				id = new ObjectId(id);
+				query = { 
+					category_name : category_name,
+					_id : { $ne : id  }
+				}
+			} else {
+				query = { 
+					category_name : category_name,
+				}
+			}
+			db.collection('product_category').find(query).toArray(function(err,result){
+				if(err) reject(err);
+				else resolve(result);
+			})
+		})
 	}
 }

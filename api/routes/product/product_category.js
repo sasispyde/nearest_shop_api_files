@@ -14,6 +14,7 @@ const app = express.Router();
 const pass = constant_values.pass;
 const fail = constant_values.fail;
 const invalid = constant_values.invalid;
+const already_exits = constant_values.already_exits;
 const system_error_message = constant_values.system_error_message;
 
 app.use(bodyParser.urlencoded({ extended : true }));
@@ -48,11 +49,27 @@ app.post('/add_category',function(req,res){
 		sub_category : req.body.sub_category,
 		status : "A"
 	};
-	category_model.add_product_category(data).then(function(result){
-		res.json({
-			status : pass,
-			data : "successfully added"
-		});
+	category_model.chack_if_category_name_is_already_exits(req.body.name,'').then(function(result){
+		console.log(result);
+		if(result.length === 0){
+			category_model.add_product_category(data).then(function(result){
+				res.json({
+					status : pass,
+					data : {
+						message : "successfully added"
+					}
+				});
+			}).catch(function(err){
+					res.json(system_error_message);
+			})
+		} else {
+			res.json({
+				status : already_exits,
+				data : {
+					message : "Category name already exits"
+				}
+			})
+		}
 	}).catch(function(err){
 		res.json(system_error_message);
 	})
@@ -76,15 +93,28 @@ app.patch('/edit/:category_id',function(req,res){
 	let product_category_id = req.params.category_id;
 	let data = {
 		category_name : req.body.category_name,
-		sub_category : req.body.sub_category
+		sub_category : req.body.sub_category,
 	};
-	category_model.update_product_category(product_category_id,data).then(function(result){
-		res.json({
-			status : pass,
-			data : {
-				message : "successfully updated"
-			}
-		});
+	category_model.chack_if_category_name_is_already_exits(data.category_name,product_category_id).then(function(result){
+		if(result.length === 0){
+			category_model.update_product_category(product_category_id,data).then(function(result){
+				res.json({
+					status : pass,
+					data : {
+						message : "successfully updated"
+					}
+				});
+			}).catch(function(err){
+				res.json(system_error_message);
+			})
+		} else {
+			res.json({
+				status : already_exits,
+				data : {
+					message : "Category name already exits"
+				}
+			})
+		}
 	}).catch(function(err){
 		res.json(system_error_message);
 	})
