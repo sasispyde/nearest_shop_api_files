@@ -5,6 +5,7 @@ const auth_modal = require('./api/modal/authentication/authentication');
 const validator = require('./validation/validation');
 const productRoute = require('./api/routes/product/products');
 const productCategoryRoute = require('./api/routes/product/product_category');
+const mainProductCategoryRoute = require('./api/routes/product/main_product_category');
 const countryBasedRoute = require('./api/routes/country/country');
 const recipeBasedRoute = require('./api/routes/recipe/recipe');
 const common_values = require('./common_values')
@@ -19,8 +20,11 @@ const system_error_message = common_values.system_error_message;
 app.use(bodyParser.urlencoded({extended : false}));
 app.use(bodyParser.json());
 
+app.use('/uploads',express.static('./uploads'));
+
 app.use('/product',productRoute);
 app.use('/category',productCategoryRoute);
+app.use('/main_category',mainProductCategoryRoute);
 app.use('/country',countryBasedRoute);
 app.use('/recipe',recipeBasedRoute);
 
@@ -35,7 +39,7 @@ app.use((req,res,next)=>{
 });
 
 app.get('/',function(req,res){
-	res.josn({
+	res.json({
 		status : pass,
 		data : {
 			meaasge : "Home Page"

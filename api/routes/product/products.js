@@ -7,6 +7,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const product_model = require('../../modal/product_model/product_model');
 const constant_values = require('../../../common_values');
+const common_functions = require('../../../common_functions');
 
 const app = express.Router();
 
@@ -14,21 +15,31 @@ const app = express.Router();
 const pass = constant_values.pass;
 const fail = constant_values.fail;
 const system_error_message = constant_values.system_error_message;
+const upload = constant_values.upload;
 
 app.use(bodyParser.urlencoded({ extended : true }));
 app.use(bodyParser.json());
 
+app.use((req,res,next)=>{
+	res.header('Access-Control-Allow-Origin',"*");
+	res.header('Access-Control-Allow-Headers','Origin,X-requested-with,Content-Type,Accept,Authorization');
+	if(req.method === 'OPTIONS'){
+		res.header('Access-Control-Allow-Methods','PUT,DELETE,PATCH,POST,GET');
+	}
+	next();	
+});
+
 // product Routes
 // add product
-app.post('/add_product',function(req,res){
-	let data = {};
-	product_model.add_product().then(function(result){
-		res.json({
-			status : pass,
-			data : result
-		});
-	}).catch(function(err){
-		res.json(system_error_message)
+app.post('/add_product',upload.single('product_image'),function(req,res){
+	let file = req.file;
+	let data = JSON.parse(req.body.data);
+
+	res.json({
+		status : pass,
+		data : {
+			message : "Product Successfully Inserted"
+		}
 	})
 })
 

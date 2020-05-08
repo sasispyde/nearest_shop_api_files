@@ -6,6 +6,7 @@
 const mongodb = require('mongodb');
 const database = require('../../../database');
 var object_id = require('mongodb').ObjectID;
+const constant = require('../../../common_values');
 
 const url = database.db_connection_url;
 const db_name = database.db_name;
@@ -38,21 +39,46 @@ module.exports = {
 			})
 		})
 	},
+	all_country : function(){
+		return new Promise(function (resolve,reject) {
+			db.collection('country').find({ status : { $ne : "D" } }).limit(10).toArray(function(err,result){
+				if(err) reject(err);
+				else {
+					for(let i = 0; i < result.length; i++){
+						let image_url = "http://"+constant.ip_address+':'+constant.port+"/"+result[i]['image'];
+						result[i]['image'] = image_url;
+					}
+					resolve(result);
+				}
+			})
+		})
+	},
 	add_country : function(data){
-		let insert_data = {
-			name : data,
-			status : "A"
-		}
 		return new Promise(function(resolve,reject){
-			db.collection('country').insertOne(insert_data,function(err,result){
+			db.collection('country').insertOne(data,function(err,result){
 				if(err) reject(err);
 				else resolve(result);
 			})
 		})
 	},
-	get_country_by_name : function(country_name){
+	get_country_by_name : function(country_name,id){
 		return new Promise(function(resolve,reject){
-			db.collection('country').find({ status : { $ne : "D" } , name : country_name }).toArray(function(err,result){
+			let query = {};
+			if(id !== ''){
+				id = new object_id(id);
+				query = { 
+					country_name : country_name,
+					status : { $ne : "D" },
+					_id : { $ne : id  }
+				}
+			} else {
+				query = { 
+					country_name : country_name,
+					status : { $ne : "D" }
+				}
+			}
+			console.log(query);
+			db.collection('country').find(query).toArray(function(err,result){
 				if(err) reject(err);
 				else resolve(result);
 			})
@@ -60,7 +86,7 @@ module.exports = {
 	},
 	edit_country : function(id,data){
 		id = new object_id(id);
-		let new_data = { $set : { name : data } };
+		let new_data = { $set : data };
 		return new Promise(function(resolve,reject){
 			db.collection('country').updateOne({ '_id' : id },new_data,function(err,result){
 				if(err) reject(err);
@@ -70,8 +96,9 @@ module.exports = {
 	},
 	delete_country : function(id){
 		id = new object_id(id);
+		let new_data = { $set : { status : 'D' } };
 		return new Promise(function(resolve,reject){
-			db.collection('country').deleteOne({ _id : id },function(err,result){
+			db.collection('country').updateOne({ _id : id },new_data,function(err,result){
 				if(err) reject(err);
 				else resolve(result);
 			})
@@ -82,7 +109,13 @@ module.exports = {
 		return new Promise(function(resolve,reject){
 			db.collection('country').find({ '_id' : id }).toArray(function(err,result){
 				if(err) reject(err);
-				else resolve(result);
+				else {
+					for(let i = 0; i < result.length; i++){
+						let image_url = "http://"+constant.ip_address+':'+constant.port+"/"+result[i]['image'];
+						result[i]['image'] = image_url;
+					}
+					resolve(result);
+				}
 			})
 		})
 	}

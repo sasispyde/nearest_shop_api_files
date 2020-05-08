@@ -47,10 +47,13 @@ module.exports = {
 	validate_country : function(country_name){
 		let err = {};
 		return new Promise(function(resolve,reject){
-			if(validator.isEmpty(country_name)){
-				err['country_name'] = "Conntry Name Must Not Be Empty"
-			} else if(!validator.isAlpha(country_name)){
-				err['country_name'] = "country must be alphabet"
+			if( country_name === undefined || country_name === null || validator.isEmpty(country_name)){
+				err['message'] = "Conntry Name Must Not Be Empty"
+			} else {
+				let name = country_name.split(' ').join('').trim();
+				if(!validator.isAlpha(name)){
+					err['message'] = "country must be alphabet"
+				}
 			}
 			resolve(err);
 		})
